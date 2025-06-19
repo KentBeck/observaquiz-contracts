@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: ObservaQuiz API
+  description: API contract for the ObservaQuiz observability learning game
+  version: 1.0.0
+  contact:
+    name: ObservaQuiz Team
+    url: https://github.com/honeycombio/observaquiz-contracts
+
+servers:
+  - url: https://api.quiz.honeydemo.io
+    description: Production server
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /quiz/questions:
+    get:
+      summary: Get quiz questions for a session
+      operationId: getQuizQuestions
+      parameters:
+        - name: x-honeycomb-api-key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Honeycomb API key for the attendee
+        - name: session_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Session ID for continuing a quiz
+      responses:
+        '200':
+          description: Quiz questions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizQuestionsResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /quiz/answer:
+    post:
+      summary: Submit an answer to a quiz question
+      operationId: submitAnswer
+      parameters:
+        - name: x-honeycomb-api-key
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Honeycomb API key for the attendee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswerSubmission'
+      responses:
+        '200':
+          description: Answer processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    QuizQuestionsResponse:
+      type: object
+      required:
+        - session_id
+        - questions
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        current_question_index:
+          type: integer
+          minimum: 0
+
+    Question:
+      type: object
+      required:
+        - id
+        - type
+        - text
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [multiple_choice, text_input, data_analysis]
+        text:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+          description: Available for multiple_choice questions
+        data_context:
+          type: object
+          description: Context data for data_analysis questions
+
+    AnswerSubmission:
+      type: object
+      required:
+        - session_id
+        - question_id
+        - answer
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        question_id:
+          type: string
+          format: uuid
+        answer:
+          oneOf:
+            - type: string
+            - type: integer
+            - type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    AnswerResponse:
+      type: object
+      required:
+        - correct
+        - session_id
+      properties:
+        correct:
+          type: boolean
+        explanation:
+          type: string
+        next_question:
+          $ref: '#/components/schemas/Question'
+        session_id:
+          type: string
+          format: uuid
+        score:
+          type: integer
+          minimum: 0
+        quiz_complete:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
