@@ -281,7 +281,7 @@ func TestQuizSessionValidation(t *testing.T) {
 	}
 
 	jsonStr := string(jsonData)
-	if contains(jsonStr, "secret-key") {
+	if containsSubstring(jsonStr, "secret-key") {
 		t.Errorf("API key was serialized in JSON: %s", jsonStr)
 	}
 
@@ -301,21 +301,21 @@ func TestQuizSessionValidation(t *testing.T) {
 }
 
 // Helper function to check if string contains substring
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || 
-		(len(s) > len(substr) && (s[:len(substr)] == substr || s[len(s)-len(substr):] == substr || 
-		containsAt(s, substr, 1))))
+func containsSubstring(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 ||
+		(len(s) > len(substr) && (s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
+		containsSubstringAt(s, substr, 1))))
 }
 
-func containsAt(s, substr string, start int) bool {
+func containsSubstringAt(s, substr string, start int) bool {
 	if start >= len(s) {
 		return false
 	}
 	if start+len(substr) > len(s) {
-		return containsAt(s, substr, start+1)
+		return containsSubstringAt(s, substr, start+1)
 	}
 	if s[start:start+len(substr)] == substr {
 		return true
 	}
-	return containsAt(s, substr, start+1)
+	return containsSubstringAt(s, substr, start+1)
 }
