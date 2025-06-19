@@ -58,8 +58,8 @@ ObservaQuiz is a full-stack observability quiz application with:
 - [ ] Migrate fetchFromBackend calls to use contract API endpoints
 - [ ] Update all component props to use contract interfaces
 - [ ] Add contract validation in API client layer
-- [ ] Create mock implementations of contract APIs for development
-- [ ] Update tests to use contract types and mock APIs
+- [ ] Create fake implementations of contract APIs for development
+- [ ] Update tests to use contract types and fake APIs
 
 ### [ ] 1.3 Backend Contract Integration (Backend Agent)
 **Assignable to: Backend Agent**
@@ -92,8 +92,8 @@ ObservaQuiz is a full-stack observability quiz application with:
 - [ ] Run existing tests
 - [ ] Start local development server
 - [ ] Validate OpenTelemetry integration
-- [ ] Set up contract mock server for independent development
-- [ ] Configure development environment to use contract mocks
+- [ ] Set up contract fake server for independent development
+- [ ] Configure development environment to use contract fakes
 
 ### [ ] 2.2 Backend Environment Setup (Backend Agent)
 **Assignable to: Backend Agent**
@@ -120,19 +120,19 @@ ObservaQuiz is a full-stack observability quiz application with:
 **Assignable to: Frontend Agent**
 - [ ] Audit existing Jest configuration
 - [ ] Add React Testing Library if missing
-- [ ] Create test utilities for OpenTelemetry mocking
+- [ ] Create test utilities for OpenTelemetry faking
 - [ ] Set up component testing patterns
 - [ ] Add test coverage reporting
-- [ ] Create contract mock utilities for testing
+- [ ] Create contract fake utilities for testing
 - [ ] Add contract compliance tests for API client
-- [ ] Set up automated testing against contract mocks
+- [ ] Set up automated testing against contract fakes
 
 ### [ ] 3.2 Backend Testing Infrastructure (Backend Agent)
 **Assignable to: Backend Agent**
 - [ ] Set up Go testing framework
 - [ ] Create test utilities for Lambda handlers
 - [ ] Add HTTP testing helpers
-- [ ] Set up OpenTelemetry test mocks
+- [ ] Set up OpenTelemetry test fakes
 - [ ] Configure test database/storage if needed
 - [ ] Add contract compliance testing framework
 - [ ] Create API endpoint validation tests
@@ -270,7 +270,7 @@ Once this plan is complete, the project will be ready for:
 ### Frontend Agent Responsibilities
 - All tasks marked "Frontend Agent" or "Assignable to: Frontend Agent"
 - Focus on React/TypeScript implementation
-- Develop against contract mocks for independence
+- Develop against contract fakes for independence
 - Ensure contract compliance in all frontend code
 - Coordinate with Backend Agent through contract validation
 
@@ -289,7 +289,7 @@ Once this plan is complete, the project will be ready for:
 
 ### Communication Protocol
 1. **Contract First**: All API changes start with contract updates
-2. **Independent Development**: Agents work in parallel using contracts
+2. **Independent Development**: Agents work in parallel using contracts and fakes
 3. **Validation Gates**: Contract tests must pass before integration
 4. **Coordination Reviews**: Regular sync on contract compliance and integration
 
