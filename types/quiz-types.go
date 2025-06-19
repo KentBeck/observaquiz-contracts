@@ -1,5 +1,5 @@
 // Package types contains shared Go type definitions for ObservaQuiz
-// Generated from OpenAPI specification
+// Generated from OpenAPI specification and manually maintained for contract compliance
 package types
 
 import (
@@ -9,9 +9,9 @@ import (
 
 // HealthResponse represents the health check response
 type HealthResponse struct {
-	Status    string    `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-	Version   *string   `json:"version,omitempty"`
+	Status    string     `json:"status"`
+	Timestamp time.Time  `json:"timestamp"`
+	Version   *string    `json:"version,omitempty"`
 }
 
 // QuizQuestionsResponse represents the response when fetching quiz questions
@@ -31,6 +31,7 @@ const (
 )
 
 // Question represents a quiz question
+// This matches the OpenAPI specification exactly
 type Question struct {
 	ID          string                 `json:"id"`
 	Type        QuestionType           `json:"type"`
@@ -64,7 +65,7 @@ type ErrorResponse struct {
 	Details map[string]interface{} `json:"details,omitempty"`
 }
 
-// Server-side specific types
+// Server-side specific types (not in OpenAPI spec but needed for implementation)
 
 // QuizSession represents a quiz session in the backend
 type QuizSession struct {
@@ -126,7 +127,7 @@ func (qt QuestionType) IsValid() bool {
 	}
 }
 
-// Validate checks if a Question is valid
+// Validate checks if a Question is valid according to contract rules
 func (q *Question) Validate() error {
 	if q.ID == "" {
 		return fmt.Errorf("question ID cannot be empty")
@@ -139,6 +140,55 @@ func (q *Question) Validate() error {
 	}
 	if q.Type == QuestionTypeMultipleChoice && len(q.Options) == 0 {
 		return fmt.Errorf("multiple choice questions must have options")
+	}
+	return nil
+}
+
+// ValidateAnswerSubmission checks if an AnswerSubmission is valid
+func (as *AnswerSubmission) Validate() error {
+	if as.SessionID == "" {
+		return fmt.Errorf("session ID cannot be empty")
+	}
+	if as.QuestionID == "" {
+		return fmt.Errorf("question ID cannot be empty")
+	}
+	if as.Answer == nil {
+		return fmt.Errorf("answer cannot be nil")
+	}
+	return nil
+}
+
+// ValidateAnswerResponse checks if an AnswerResponse is valid
+func (ar *AnswerResponse) Validate() error {
+	if ar.SessionID == "" {
+		return fmt.Errorf("session ID cannot be empty")
+	}
+	if ar.NextQuestion != nil {
+		if err := ar.NextQuestion.Validate(); err != nil {
+			return fmt.Errorf("next question is invalid: %w", err)
+		}
+	}
+	if ar.Score != nil && *ar.Score < 0 {
+		return fmt.Errorf("score cannot be negative")
+	}
+	return nil
+}
+
+// String returns the string representation of QuestionType
+func (qt QuestionType) String() string {
+	return string(qt)
+}
+
+// MarshalText implements encoding.TextMarshaler
+func (qt QuestionType) MarshalText() ([]byte, error) {
+	return []byte(qt), nil
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler
+func (qt *QuestionType) UnmarshalText(text []byte) error {
+	*qt = QuestionType(text)
+	if !qt.IsValid() {
+		return fmt.Errorf("invalid question type: %s", string(text))
 	}
 	return nil
 }
